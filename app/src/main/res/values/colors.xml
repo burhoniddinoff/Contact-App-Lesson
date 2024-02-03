@@ -4,6 +4,7 @@
     <color name="colorPrimary">#35373A</color>
     <color name="colorPrimaryLight">#67686A</color>
     <color name="colorSecondary">#63D0DB</color>
+    <color name="colorThird">#FFB300</color>
     <color name="colorAccent">#FFFFFF</color>
     <color name="colorUnselect">#9D9FA1</color>
 

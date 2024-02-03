@@ -42,7 +42,7 @@ object ApiClient {
 
         val retrofit = Retrofit
             .Builder()
-            .baseUrl("https://0671-195-158-16-140.ngrok-free.app/")
+            .baseUrl("https://a5a0-195-158-16-140.ngrok-free.app/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()

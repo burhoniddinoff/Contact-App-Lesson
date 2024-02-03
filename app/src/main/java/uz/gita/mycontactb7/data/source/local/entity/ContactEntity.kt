@@ -7,6 +7,7 @@ import uz.gita.mycontactb7.data.model.StatusEnum
 @Entity
 data class ContactEntity(
     @PrimaryKey(autoGenerate = true) val id: Int,
+    val remoteID: Int,  //  ADD face, EDIT or delete real ID
     val firstName: String,
     val lastName: String,
     val phone:String,

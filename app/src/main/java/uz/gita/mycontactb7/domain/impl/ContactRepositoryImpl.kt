@@ -9,6 +9,7 @@ import retrofit2.Response
 import uz.gita.mycontactb7.data.mapper.ContactMapper.toUIData
 import uz.gita.mycontactb7.data.model.ContactUIData
 import uz.gita.mycontactb7.data.model.StatusEnum
+import uz.gita.mycontactb7.data.model.toStatusEnum
 import uz.gita.mycontactb7.data.source.local.AppDatabase
 import uz.gita.mycontactb7.data.source.local.entity.ContactEntity
 import uz.gita.mycontactb7.data.source.remote.ApiClient
@@ -38,12 +39,7 @@ class ContactRepositoryImpl private constructor() : ContactRepository {
         api.getAppContact().enqueue(object : Callback<List<ContactResponse>> {
             override fun onResponse(call: Call<List<ContactResponse>>, response: Response<List<ContactResponse>>, ) {
                 if (response.isSuccessful && response.body() != null) {
-                    val remoteData = response.body()!!.map { it.toUIData() }
-                    val localData = contractDao.getAllContactFromLocal().map { it.toUIData() }
-                    val result = ArrayList<ContactUIData>()
-                    result.addAll(remoteData)
-                    result.addAll(localData)
-                    successBlock.invoke(result)
+                    successBlock.invoke(mergeData(response.body()!!, contractDao.getAllContactFromLocal()))
                 } else if (response.errorBody() != null) {
                     val data = gson.fromJson(response.errorBody()!!.string(), ErrorResponse::class.java)
                     errorBlock.invoke(data.message)
@@ -51,8 +47,6 @@ class ContactRepositoryImpl private constructor() : ContactRepository {
             }
 
             override fun onFailure(call: Call<List<ContactResponse>>, t: Throwable) {
-                logger(t.message.toString())
-                logger(t.localizedMessage.toString())
                 t.message?.let { errorBlock.invoke(it) }
             }
         })
@@ -76,8 +70,62 @@ class ContactRepositoryImpl private constructor() : ContactRepository {
                 }
             })
         } else {
-            contractDao.insertContact(ContactEntity(0, firstName, lastName, phone, StatusEnum.ADD.statusCode))
+            contractDao.insertContact(ContactEntity(0, 0,firstName, lastName, phone, StatusEnum.ADD.statusCode))
             successBlock.invoke()
         }
+    }
+
+    override fun syncWithServer(finishBlock: () -> Unit, errorBlock: (String) -> Unit) {
+        val list = contractDao.getAllContactFromLocal()
+        list.forEach {
+            api.addContact(CreateContactRequest(it.firstName, it.lastName, it.phone)).enqueue(object : Callback<ContactResponse> {
+                override fun onResponse(call: Call<ContactResponse>, response: Response<ContactResponse>, ) {
+                    contractDao.deleteContact(it)
+                    if (response.isSuccessful && response.body() != null) {
+                        finishBlock.invoke()
+                    } else if (response.errorBody() != null) {
+                        val data = gson.fromJson(response.errorBody()!!.string(), ErrorResponse::class.java)
+                        errorBlock.invoke(data.message)
+                    } else errorBlock.invoke("Unknown error!!")
+                }
+
+                override fun onFailure(call: Call<ContactResponse>, t: Throwable) {
+                    t.message?.let { message -> errorBlock.invoke(message) }
+                }
+            })
+        }
+    }
+
+    private fun mergeData(remoteList : List<ContactResponse>, localList : List<ContactEntity>) :List<ContactUIData> {
+        val result = ArrayList<ContactUIData>()
+        result.addAll(remoteList.map { it.toUIData() })
+
+        var index = remoteList.lastOrNull()?.id ?: 0      // face
+        localList.forEach {entity ->
+            when(entity.statusCode.toStatusEnum()) {
+                StatusEnum.ADD -> {
+                    result.add(entity.toUIData(++ index))
+                }
+                StatusEnum.EDIT -> {
+                    val findData = result.find { it.id == entity.remoteID }
+                    if (findData != null) {
+                        val findIndex = result.indexOf(findData)
+                        val newData = entity.toUIData(findData.id)
+                        result[findIndex] = newData
+                    }
+                }
+                StatusEnum.DELETE -> {
+                    val findData = result.find { it.id == entity.remoteID }
+                    if (findData != null) {
+                        val findIndex = result.indexOf(findData)
+                        val newData = entity.toUIData(findData.id)
+                        result[findIndex]= newData
+                    }
+                }
+                StatusEnum.SYNC -> {}
+            }
+        }
+
+        return result
     }
 }

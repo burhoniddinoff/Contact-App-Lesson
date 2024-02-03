@@ -2,12 +2,14 @@ package uz.gita.mycontactb7.presentation.adapter
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import uz.gita.mycontactb7.data.model.ContactUIData
+import uz.gita.mycontactb7.data.model.StatusEnum
 import uz.gita.mycontactb7.databinding.ItemContactBinding
 
 class ContactAdapter : ListAdapter<ContactUIData, ContactAdapter.ContactViewHolder>(ContactDiffUtil) {
@@ -29,6 +31,14 @@ class ContactAdapter : ListAdapter<ContactUIData, ContactAdapter.ContactViewHold
             getItem(adapterPosition).apply {
                 binding.textName.text = "$lastName $firstName"
                 binding.textNumber.text = phone
+
+                when(this.status) {
+                    StatusEnum.SYNC -> binding.textStatus.visibility = View.GONE
+                    else  -> {
+                        binding.textStatus.visibility = View.VISIBLE
+                        binding.textStatus.text = this.status.name
+                    }
+                }
             }
         }
     }

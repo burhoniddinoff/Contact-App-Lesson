@@ -54,4 +54,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/textStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="4dp"
+        android:drawableStart="@drawable/baseline_access_time_24"
+        android:text="Test"
+        android:textColor="#fff"
+        android:drawablePadding="8dp"
+        app:layout_constraintLeft_toRightOf="@id/textNumber"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="@id/buttonMore"
+        android:background="@drawable/bg_status"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

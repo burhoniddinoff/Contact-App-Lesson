@@ -17,9 +17,9 @@ object ContactMapper {
             status = StatusEnum.SYNC
         )
 
-    fun ContactEntity.toUIData() : ContactUIData =
+    fun ContactEntity.toUIData(id : Int) : ContactUIData =
         ContactUIData(
-            id = -1,
+            id = id,
             firstName = this.firstName,
             lastName = this.lastName,
             phone = this.phone,

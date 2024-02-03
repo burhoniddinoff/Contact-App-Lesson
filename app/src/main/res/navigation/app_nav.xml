@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/app_nav"
+    app:startDestination="@id/mainScreen">
+
+    <fragment
+        android:id="@+id/mainScreen"
+        android:name="uz.gita.mycontactb7.presentation.screens.MainScreen"
+        android:label="screen_main"
+        tools:layout="@layout/screen_main" >
+        <action
+            android:id="@+id/action_mainScreen_to_editContactScreen"
+            app:destination="@id/editContactScreen" />
+        <action
+            android:id="@+id/action_mainScreen_to_addContactScreen"
+            app:destination="@id/addContactScreen" />
+    </fragment>
+    <fragment
+        android:id="@+id/addContactScreen"
+        android:name="uz.gita.mycontactb7.presentation.screens.AddContactScreen"
+        android:label="screen_contact_add"
+        tools:layout="@layout/screen_contact_add" />
+    <fragment
+        android:id="@+id/editContactScreen"
+        android:name="uz.gita.mycontactb7.presentation.screens.EditContactScreen"
+        android:label="screen_contact_edit"
+        tools:layout="@layout/screen_contact_edit" />
+</navigation>

@@ -5,10 +5,9 @@ enum class StatusEnum(val statusCode: Int) {
 }
 
 
-fun Int.toStatusEnum() : StatusEnum =
-    when(this) {
-        1 -> StatusEnum.ADD
-        2 -> StatusEnum.DELETE
-        3 -> StatusEnum.EDIT
-        else -> StatusEnum.SYNC
-    }
+fun Int.toStatusEnum(): StatusEnum = when (this) {
+    1 -> StatusEnum.ADD
+    2 -> StatusEnum.DELETE
+    3 -> StatusEnum.EDIT
+    else -> StatusEnum.SYNC
+}

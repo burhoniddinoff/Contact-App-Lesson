@@ -48,8 +48,8 @@
         <item name="android:textColor">@android:color/white</item>
     </style>
 
-    <!-- EditText -->
-    <style name="EditText">
+    <!-- EditText --><![CDATA[
+    ]]><style name="EditText">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">54dp</item>
         <item name="android:layout_marginRight">24dp</item>

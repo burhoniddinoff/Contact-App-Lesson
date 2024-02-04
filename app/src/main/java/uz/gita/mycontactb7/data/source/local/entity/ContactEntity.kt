@@ -10,6 +10,6 @@ data class ContactEntity(
     val remoteID: Int,  //  ADD face, EDIT or delete real ID
     val firstName: String,
     val lastName: String,
-    val phone:String,
-    val statusCode: Int
+    val phone: String,
+    val statusCode: Int,
 )

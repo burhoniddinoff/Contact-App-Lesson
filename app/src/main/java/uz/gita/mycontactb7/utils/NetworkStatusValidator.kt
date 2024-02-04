@@ -5,39 +5,39 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class NetworkStatusValidator private constructor() {
-    companion object {
-        var hasNetwork : Boolean = false
-        private lateinit var instance: NetworkStatusValidator
+@Singleton
+class NetworkStatusValidator @Inject constructor(@ApplicationContext val context: Context) {
 
-        fun init(context: Context, availableNetworkBlock : () -> Unit) {
-            if (!(::instance.isInitialized)) instance = NetworkStatusValidator()
+    var hasNetwork: Boolean = false
 
-            val networkRequest = NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)   // wifi
-                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)  // sim
-                .build()
+    fun init(availableNetworkBlock: () -> Unit, lostConnection: () -> Unit) {
+        val networkRequest = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)   // wifi
+            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)  // sim
+            .build()
 
-            val connectivityCallback = object : ConnectivityManager.NetworkCallback() {
-                override fun onAvailable(network: Network) {
-                    super.onAvailable(network)
-                    hasNetwork = true
-                    availableNetworkBlock.invoke()
-                }
-
-                override fun onLost(network: Network) {
-                    super.onLost(network)
-
-                    hasNetwork = false
-                }
+        val connectivityCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                hasNetwork = true
+                availableNetworkBlock.invoke()
             }
 
-            val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            connectivityManager.requestNetwork(networkRequest, connectivityCallback)
+            override fun onLost(network: Network) {
+                super.onLost(network)
+                lostConnection.invoke()
+                hasNetwork = false
+            }
         }
 
-        fun getInstance() = instance
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connectivityManager.requestNetwork(networkRequest, connectivityCallback)
     }
 }
+
+

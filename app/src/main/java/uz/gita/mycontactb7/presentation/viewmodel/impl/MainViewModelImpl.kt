@@ -1,14 +1,16 @@
 package uz.gita.mycontactb7.presentation.viewmodel.impl
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import uz.gita.mycontactb7.data.model.ContactUIData
 import uz.gita.mycontactb7.domain.ContactRepository
 import uz.gita.mycontactb7.presentation.viewmodel.MainViewModel
 import uz.gita.mycontactb7.utils.MyEventBus
+import javax.inject.Inject
 
-class MainViewModelImpl(private val repository: ContactRepository) : ViewModel(), MainViewModel {
+@HiltViewModel
+class MainViewModelImpl @Inject constructor(private val repository: ContactRepository) : ViewModel(), MainViewModel {
     override val progressLiveData = MutableLiveData<Boolean>()
     override val contactsLiveData = MutableLiveData<List<ContactUIData>>()
     override val errorMessageLiveData = MutableLiveData<String>()
@@ -23,7 +25,6 @@ class MainViewModelImpl(private val repository: ContactRepository) : ViewModel()
     }
 
     override fun loadContacts() {
-        //if (!NetworkStatusValidator.hasNetwork) notConnectionLiveData.value = Unit
         progressLiveData.value = true
         repository.getAllContact(
             successBlock = {

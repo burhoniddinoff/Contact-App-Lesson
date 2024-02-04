@@ -14,7 +14,5 @@ interface ContactApi {
 
     @POST("api/v1/contact")
     fun addContact(@Body data: CreateContactRequest): Call<ContactResponse>
+
 }
-
-
-

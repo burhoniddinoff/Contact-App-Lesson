@@ -1,32 +1,46 @@
 package uz.gita.mycontactb7
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import dagger.hilt.android.AndroidEntryPoint
 import uz.gita.mycontactb7.domain.ContactRepository
-import uz.gita.mycontactb7.domain.impl.ContactRepositoryImpl
 import uz.gita.mycontactb7.utils.MyEventBus
 import uz.gita.mycontactb7.utils.NetworkStatusValidator
+import java.util.concurrent.Executors
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private val repository : ContactRepository by lazy { ContactRepositoryImpl.getInstance() }
+    @Inject
+    lateinit var repository: ContactRepository
+
+    @Inject
+    lateinit var networkStatusValidator: NetworkStatusValidator
+    private val executor = Executors.newSingleThreadExecutor()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        NetworkStatusValidator.init(
-            context = this,
+        networkStatusValidator.init(
             availableNetworkBlock = {
-                repository.syncWithServer(
-                    finishBlock = {
-                        MyEventBus.reloadEvent?.invoke()
-                    },
-                    errorBlock =  {
-                        Toast.makeText(this@MainActivity, it, Toast.LENGTH_SHORT).show()
-                    }
-                )
-            }
+                executor.execute {
+                    repository.syncWithServer(
+                        finishBlock = {
+                            this@MainActivity.runOnUiThread {
+                                MyEventBus.reloadEvent?.invoke()
+                            }
+                        },
+                        errorBlock = {
+                            this@MainActivity.runOnUiThread {
+                                Toast.makeText(this@MainActivity, it, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    )
+                }
+            },
+            lostConnection = { Toast.makeText(this@MainActivity, "Not connection", Toast.LENGTH_SHORT).show() }
         )
     }
 }

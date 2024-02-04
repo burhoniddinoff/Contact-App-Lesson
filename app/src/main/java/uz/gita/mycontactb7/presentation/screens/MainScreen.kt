@@ -8,20 +8,21 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import by.kirich1409.viewbindingdelegate.viewBinding
+import dagger.hilt.android.AndroidEntryPoint
 import uz.gita.mycontactb7.R
 import uz.gita.mycontactb7.data.model.ContactUIData
 import uz.gita.mycontactb7.databinding.ScreenMainBinding
 import uz.gita.mycontactb7.presentation.adapter.ContactAdapter
 import uz.gita.mycontactb7.presentation.viewmodel.MainViewModel
-import uz.gita.mycontactb7.presentation.viewmodel.factory.MainViewModelFactory
 import uz.gita.mycontactb7.presentation.viewmodel.impl.MainViewModelImpl
 import uz.gita.mycontactb7.utils.logger
 import uz.gita.mycontactb7.utils.myApply
 import uz.gita.mycontactb7.utils.showToast
 
+@AndroidEntryPoint
 class MainScreen : Fragment(R.layout.screen_main) {
     private val binding: ScreenMainBinding by viewBinding(ScreenMainBinding::bind)
-    private val viewModel: MainViewModel by viewModels<MainViewModelImpl> { MainViewModelFactory() }
+    private val viewModel: MainViewModel by viewModels<MainViewModelImpl>()
     private val adapter by lazy { ContactAdapter() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,6 +39,7 @@ class MainScreen : Fragment(R.layout.screen_main) {
 
         logger("main")
         buttonAdd.setOnClickListener { viewModel.openAddContactScreen() }
+
         buttonRefresh.setOnClickListener {
             logger("click")
             viewModel.loadContacts()
@@ -75,6 +77,3 @@ class MainScreen : Fragment(R.layout.screen_main) {
         findNavController().navigate(R.id.action_mainScreen_to_addContactScreen)
     }
 }
-
-
-
